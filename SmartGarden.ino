@@ -1,10 +1,14 @@
 #include <SPI.h>
 #include "ESP8266WiFi.h"
 #include "ESP8266HTTPClient.h"
-#include <stdio.h>
-#include <string.h>
+#include <DNSServer.h>
+#include <ESP8266WebServer.h>
+#include <WiFiManager.h>
 #include <WiFiUdp.h>
 #include "WiFiSettings.h"
+#include <EEPROM.h>
+#include <stdio.h>
+#include <string.h>
 
 #define period 1000*10
 #define DEBUG true
@@ -53,10 +57,19 @@ unsigned long localTime = 0;
 void setup() {  
   pinMode(D0, OUTPUT);
   //Initialize serial and wait for port to open:
+  EEPROM.begin(512);
   Serial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
+  
+  /* SETUP WIFI CONNECTION THROUGH WIFIMANAGER */
+  WiFiManager wifiManager;
+  //wifiManager.resetSettings();    //Uncomment this to wipe WiFi settings from EEPROM on boot.  Comment out and recompile/upload after 1 boot cycle.
+  wifiManager.setAPStaticIPConfig(IPAddress(192,168,1,94), IPAddress(192,168,1,94), IPAddress(255,255,255,0));
+  wifiManager.autoConnect("NodeMCU");
+  //if you get here you have connected to the WiFi
+  Serial.println("Connected");
 
   // check for the presence of the shield:
   if (WiFi.status() == WL_NO_SHIELD) {
@@ -64,18 +77,6 @@ void setup() {
     // don't continue:
     while (true);
   }
-
-  // attempt to connect to Wifi network:
-  WiFi.begin(ssid, pass);
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print("Attempting to connect to WPA SSID: ");
-    Serial.println(ssid);
-    // wait 1 second for connection:
-    delay(1000);
-  }
-   if (DEBUG) Serial.println(WiFi.localIP());
-  // you're connected now, so print out the data:
-  Serial.println("You're connected to the network");
 
   delay(5000);
 
