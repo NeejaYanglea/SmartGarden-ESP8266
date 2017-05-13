@@ -5,10 +5,12 @@
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>
 #include <WiFiUdp.h>
-#include "WiFiSettings.h"
 #include <EEPROM.h>
 #include <stdio.h>
 #include <string.h>
+
+#define INDEX_HTML "<!DOCTYPE html><html><head><title>SmartGarden-ESP8266 Configuration</title><link rel='shortcut icon' href='{favicon}' /><style>body { font-family: Helvetica, Arial, sans-serif; font-size: 16px ;padding: 10px }</style></head><body><h1>SmartGarden-ESP8266 Configuration</h1><form method='GET' action='/conf' target='output_frame'><label><strong>Light start hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='startTime' value='{startTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><label><strong>Light end hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='endTime' value='{endTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><label><strong>Water hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='waterTime' value='{waterTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><input type='submit' value='Submit'><br /><br /><iframe id='output_frame' name='output_frame' allowtransparency='true' width='350' height='80' frameBorder='0'>Browser not compatible</iframe></body></html>"
+#define FAVICON "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAAsSAAALEgHS3X78AAACgklEQVQ4y4WTz0uTARjHv3MzfyDDWCHdJL2ElDRaXTIEWX9Aeqpb0ClvhR0No4PRLiaIF1kpBXMJlgejg5HmwYslmm4K5ZyFbjXdlnv3zvf9dDAsFe1zeg7P8zk8z/N1AOgfLMvS7OysCoWCPB6PqqqqVF5ersNw7BcAikQi2tzc1NbWljKZjCoqKlRfXy+Px/N/QT6fVzweV2lpqdxut5xOp6LRqObn51VbWyufz7dH4NpvBJRIJJTNZmUYhsrKyuTz+VRXV6dwOKyNjQ35/f49A3uwLAvTNLFtG4CZmRl6e3uZmpoCoK+vj7Gxsd3+A4K1XI7g8DDPQiFej4xgGAa2bdPV1cXk5CQAnZ2dxGKxg4JtIJ9N83MxypdMmlcLCzx89IiFuTkAOjo6SCaTTE9P09PT81dgA4XVVQq3blGoqYEzZ+CqH96+IWqatN2/z7d4nOXlZbq7u7Ftm0AgwMrKyo7AjMUw3W4sicKli2w/eEBBwpDgaZCPZp729nYAAoEAS0tLDAwMEAwGcViAeblBjg8Tsltvq7ixUUomZa4nZPcPqHgxqpLv3/Tw/bj81dVKp9PK5XLyer1aW1uTtr8uk5LINDWR6e8n29JM9u4d0jdvkhsMkZAw77WxblmsJxJYlkUqldrdm8tejSsl6fjlBrmii/oRfilnSYmOySFXS4sMSY5IRCeLiqQTJyRJlZWVu29QVFRzWjlJyecvVNx8Ta4rDTKdTpUND8v4PKe0JM6eOzQLAojduM64xJLfT3p0lFR4kETXEz5JfJTIr8Q4jJ0r/PrFrNfLqMSExJTEuz91MhTiKHbDZEuKBx7r59CQyGRVft6rU62tcvsu6Ch+AxueMF07qwmgAAAAAElFTkSuQmCC"
 
 #define period 1000*10
 #define DEBUG true
@@ -35,8 +37,8 @@ os_timer_t myTimer;
 int timeSyncCounter = 0;
 #define TIME_SYNC_SECONDS 3600
 
-const char* ssid = WIFI_SSID;
-const char* pass = WIFI_PASSWORD;
+unsigned long localTime = 0;
+
 int status = WL_IDLE_STATUS;     // the Wifi radio's status
 
 // Domoticz
@@ -62,25 +64,26 @@ void updateTimeFromInternalClock(const int seconds);
 void sendDataToServer();
 void timerCallback(void *pArg);
 
-unsigned long localTime = 0;
+//starts http server on port 8080
+ESP8266WebServer server(8080);
 
 void setup() {
-  os_timer_setfn(&myTimer, timerCallback, NULL);
-  os_timer_arm(&myTimer, 1000, true);
-  
+
   pinMode(D4, OUTPUT);
   //Initialize serial and wait for port to open:
-  EEPROM.begin(512);
   Serial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
   
+  os_timer_setfn(&myTimer, timerCallback, NULL);
+  os_timer_arm(&myTimer, 1000, true);
+  
   /* SETUP WIFI CONNECTION THROUGH WIFIMANAGER */
   WiFiManager wifiManager;
   //wifiManager.resetSettings();    //Uncomment this to wipe WiFi settings from EEPROM on boot.  Comment out and recompile/upload after 1 boot cycle.
   wifiManager.setAPStaticIPConfig(IPAddress(192,168,1,94), IPAddress(192,168,1,94), IPAddress(255,255,255,0));
-  wifiManager.autoConnect("NodeMCU");
+  wifiManager.autoConnect("SmartGarden-ESP8266", "smartgarden");
   //if you get here you have connected to the WiFi
   Serial.println("Connected");
 
@@ -96,12 +99,53 @@ void setup() {
   if (DEBUG) Serial.println("Starting UDP");
   udp.begin(localPort);
   if (DEBUG) Serial.print("Local port: ");
-  if (DEBUG)Serial.println(udp.localPort());
+  if (DEBUG) Serial.println(udp.localPort());
 
   setTimeFromNTP(0);
+  
+  // Server configuration 
+  
+  server.on("/conf", [](){
+    // saves user data to the eeprom
+    // TODO verify user input
+    int startTime = server.arg("startTime").toInt();
+    int endTime = server.arg("endTime").toInt();
+    int waterTime = server.arg("waterTime").toInt();    
+    
+    EEPROM.begin(512);
+    EEPROM.put(0, startTime);
+    EEPROM.put(sizeof(startTime), endTime);
+    EEPROM.put(sizeof(startTime) + sizeof(endTime), waterTime);
+    EEPROM.commit();
+    EEPROM.end();
+    
+    server.send(200, "text/plain", "Saved: " + String(startTime) + " " + String(endTime) + " " + String(waterTime));
+  });
+
+  server.on("/", [](){
+    String html_home_page = INDEX_HTML;
+    int startTime, endTime, waterTime;
+    
+    EEPROM.begin(512);
+    EEPROM.get(0, startTime);
+    EEPROM.get(sizeof(startTime), endTime);
+    EEPROM.get(sizeof(startTime) + sizeof(endTime), waterTime);
+    EEPROM.end();
+
+    html_home_page.replace("{favicon}", FAVICON);
+    html_home_page.replace("{startTime}", String(startTime));
+    html_home_page.replace("{endTime}", String(endTime));
+    html_home_page.replace("{waterTime}", String(waterTime));
+
+    server.send(200, "text/html", html_home_page);
+  });
+
+  server.begin();
 }
 
 void loop() {  
+  server.handleClient();
+  
   if(timeSyncCounter >= TIME_SYNC_SECONDS) {
     setTimeFromNTP(1);
     timeSyncCounter = 0;
@@ -179,7 +223,7 @@ void setTimeFromNTP(const int update) {
 
 void updateTimeFromInternalClock(const int seconds) {
   localTime += seconds;
-  if (DEBUG) Serial.println(localTime);
+  //if (DEBUG) Serial.println(localTime);
 }
 
 unsigned long sendNTPpacket(IPAddress& address){
@@ -232,5 +276,4 @@ void timerCallback(void *pArg) {
   updateTimeFromInternalClock(1);
   timeSyncCounter++;
 }
-
 
