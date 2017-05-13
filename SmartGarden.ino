@@ -27,6 +27,14 @@
 #define SD2 9
 #define SD3 10
 
+extern "C" {
+#include "user_interface.h"
+}
+
+os_timer_t myTimer;
+int timeSyncCounter = 0;
+#define TIME_SYNC_SECONDS 3600
+
 const char* ssid = WIFI_SSID;
 const char* pass = WIFI_PASSWORD;
 int status = WL_IDLE_STATUS;     // the Wifi radio's status
@@ -51,11 +59,16 @@ WiFiUDP udp;
 unsigned long sendNTPpacket(IPAddress& address);
 void setTimeFromNTP(const int update);
 void updateTimeFromInternalClock(const int seconds);
+void sendDataToServer();
+void timerCallback(void *pArg);
 
 unsigned long localTime = 0;
 
-void setup() {  
-  pinMode(D0, OUTPUT);
+void setup() {
+  os_timer_setfn(&myTimer, timerCallback, NULL);
+  os_timer_arm(&myTimer, 1000, true);
+  
+  pinMode(D4, OUTPUT);
   //Initialize serial and wait for port to open:
   EEPROM.begin(512);
   Serial.begin(9600);
@@ -89,33 +102,19 @@ void setup() {
 }
 
 void loop() {  
-  updateTimeFromInternalClock(4);
-  setTimeFromNTP(1);
+  if(timeSyncCounter >= TIME_SYNC_SECONDS) {
+    setTimeFromNTP(1);
+    timeSyncCounter = 0;
+    if(DEBUG) Serial.println("Time sync from NTP");
+  }
+  //if(DEBUG) Serial.print("Time: ");
+  //if(DEBUG) Serial.println(localTime);
   
-  int data = (1000 - analogRead(17))/7.5;
-  if (DEBUG) {
-    Serial.print("Sending data to server: ");
-    Serial.print(data);
-    Serial.println();
-  }
-  HTTPClient http;
-  char msg[95];
-  snprintf(msg, 95, "http://%s/json.htm?type=command&param=udevice&idx=%d&nvalue=%d&svalue=%d", ipPort, idx, data, data);
-  if (DEBUG) Serial.println(msg);
-  http.begin(msg);
-
-  int httpCode = http.GET();
-  if (DEBUG) {
-    Serial.print("http code: ");
-    Serial.print(httpCode);
-    Serial.println();
-  }
-
-  digitalWrite(D0, LOW);
+  sendDataToServer();
+   
+  digitalWrite(D4, LOW);
   delay(1000);
-  http.end();
-  // check the network connection once every 10 seconds:
-  digitalWrite(D0, HIGH);
+  digitalWrite(D4, HIGH);
   delay(1000);
 }
 
@@ -204,6 +203,34 @@ unsigned long sendNTPpacket(IPAddress& address){
   udp.beginPacket(address, 123); //NTP requests are to port 123
   udp.write(packetBuffer, NTP_PACKET_SIZE);
   udp.endPacket();
+}
+
+void sendDataToServer(){
+  int data = (1000 - analogRead(17))/7.5;
+  if (DEBUG) {
+    Serial.print("Sending data to server: ");
+    Serial.print(data);
+    Serial.println();
+  }
+  HTTPClient http;
+  char msg[95];
+  snprintf(msg, 95, "http://%s/json.htm?type=command&param=udevice&idx=%d&nvalue=%d&svalue=%d", ipPort, idx, data, data);
+  if (DEBUG) Serial.println(msg);
+  http.begin(msg);
+
+  int httpCode = http.GET();
+  if (DEBUG) {
+    Serial.print("http code: ");
+    Serial.print(httpCode);
+    Serial.println();
+  }
+
+   http.end();
+}
+
+void timerCallback(void *pArg) {
+  updateTimeFromInternalClock(1);
+  timeSyncCounter++;
 }
 
 
