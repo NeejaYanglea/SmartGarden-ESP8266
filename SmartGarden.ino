@@ -13,7 +13,7 @@
 #define FAVICON "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAAsSAAALEgHS3X78AAACgklEQVQ4y4WTz0uTARjHv3MzfyDDWCHdJL2ElDRaXTIEWX9Aeqpb0ClvhR0No4PRLiaIF1kpBXMJlgejg5HmwYslmm4K5ZyFbjXdlnv3zvf9dDAsFe1zeg7P8zk8z/N1AOgfLMvS7OysCoWCPB6PqqqqVF5ersNw7BcAikQi2tzc1NbWljKZjCoqKlRfXy+Px/N/QT6fVzweV2lpqdxut5xOp6LRqObn51VbWyufz7dH4NpvBJRIJJTNZmUYhsrKyuTz+VRXV6dwOKyNjQ35/f49A3uwLAvTNLFtG4CZmRl6e3uZmpoCoK+vj7Gxsd3+A4K1XI7g8DDPQiFej4xgGAa2bdPV1cXk5CQAnZ2dxGKxg4JtIJ9N83MxypdMmlcLCzx89IiFuTkAOjo6SCaTTE9P09PT81dgA4XVVQq3blGoqYEzZ+CqH96+IWqatN2/z7d4nOXlZbq7u7Ftm0AgwMrKyo7AjMUw3W4sicKli2w/eEBBwpDgaZCPZp729nYAAoEAS0tLDAwMEAwGcViAeblBjg8Tsltvq7ixUUomZa4nZPcPqHgxqpLv3/Tw/bj81dVKp9PK5XLyer1aW1uTtr8uk5LINDWR6e8n29JM9u4d0jdvkhsMkZAw77WxblmsJxJYlkUqldrdm8tejSsl6fjlBrmii/oRfilnSYmOySFXS4sMSY5IRCeLiqQTJyRJlZWVu29QVFRzWjlJyecvVNx8Ta4rDTKdTpUND8v4PKe0JM6eOzQLAojduM64xJLfT3p0lFR4kETXEz5JfJTIr8Q4jJ0r/PrFrNfLqMSExJTEuz91MhTiKHbDZEuKBx7r59CQyGRVft6rU62tcvsu6Ch+AxueMF07qwmgAAAAAElFTkSuQmCC"
 
 #define period 1000*10
-#define DEBUG true
+#define DEBUG false
 
 #define D0 16 
 #define D1 5
@@ -39,6 +39,11 @@ int timeSyncCounter = 0;
 
 unsigned long localTime = 0;
 
+bool eepromReadRequired = true;
+int startTime, endTime, waterTime, day;
+//TODO set from server web
+int GMT = 2; 
+
 int status = WL_IDLE_STATUS;     // the Wifi radio's status
 
 // Domoticz
@@ -63,13 +68,31 @@ void setTimeFromNTP(const int update);
 void updateTimeFromInternalClock(const int seconds);
 void sendDataToServer();
 void timerCallback(void *pArg);
+void readDataFromEeprom(int& startTime, int& endTime, int& waterTime);
 
 //starts http server on port 8080
 ESP8266WebServer server(8080);
 
-void setup() {
+int getHour(long epoch);
+bool inRange(int currentHour, int startTime, int endTime);
+bool waterToday(int currentDate, int savedDate);
+int getDay(long epoch);
+void writeDayOnEeprom(int day);
+void readDayFromEeprom(int &day);
 
+void setup() {
+  // Moisture sensor in water tank
+  pinMode(D0, INPUT);
+  // Moisture sensor in pots
+  pinMode(D1, INPUT);
+  pinMode(D2, INPUT);
+  // Led input
+  pinMode(D3, OUTPUT);
+  digitalWrite(D3, HIGH);
+  // Water tank input
   pinMode(D4, OUTPUT);
+  digitalWrite(D4, HIGH);
+  
   //Initialize serial and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {
@@ -108,9 +131,9 @@ void setup() {
   server.on("/conf", [](){
     // saves user data to the eeprom
     // TODO verify user input
-    int startTime = server.arg("startTime").toInt();
-    int endTime = server.arg("endTime").toInt();
-    int waterTime = server.arg("waterTime").toInt();    
+    startTime = server.arg("startTime").toInt();
+    endTime = server.arg("endTime").toInt();
+    waterTime = server.arg("waterTime").toInt();    
     
     EEPROM.begin(512);
     EEPROM.put(0, startTime);
@@ -118,19 +141,16 @@ void setup() {
     EEPROM.put(sizeof(startTime) + sizeof(endTime), waterTime);
     EEPROM.commit();
     EEPROM.end();
+
+    eepromReadRequired = true;
     
     server.send(200, "text/plain", "Saved: " + String(startTime) + " " + String(endTime) + " " + String(waterTime));
   });
 
   server.on("/", [](){
     String html_home_page = INDEX_HTML;
-    int startTime, endTime, waterTime;
-    
-    EEPROM.begin(512);
-    EEPROM.get(0, startTime);
-    EEPROM.get(sizeof(startTime), endTime);
-    EEPROM.get(sizeof(startTime) + sizeof(endTime), waterTime);
-    EEPROM.end();
+
+    readDataFromEeprom(startTime, endTime, waterTime);
 
     html_home_page.replace("{favicon}", FAVICON);
     html_home_page.replace("{startTime}", String(startTime));
@@ -153,13 +173,57 @@ void loop() {
   }
   //if(DEBUG) Serial.print("Time: ");
   //if(DEBUG) Serial.println(localTime);
+
+  //TODO send all info to domoticz
+  //sendDataToServer();
+
+  if (eepromReadRequired) {
+    readDataFromEeprom(startTime, endTime, waterTime);    
+    eepromReadRequired = false;
+  }
+
+  if(DEBUG) Serial.print("startTime, endTime, waterTime: ");
+  if(DEBUG) Serial.print(startTime);
+  if(DEBUG) Serial.print(" ");
+  if(DEBUG) Serial.print(endTime);
+  if(DEBUG) Serial.print(" ");
+  if(DEBUG) Serial.println(waterTime);
+
+
+  // LED control
+  if (inRange(getHour(localTime), startTime, endTime)){
+      if (DEBUG) Serial.println("In range and led off");
+      digitalWrite(D3, LOW);
+   } else {
+      if (DEBUG) Serial.println("Not in range and led on");
+      digitalWrite(D3, HIGH);
+  }
+
+  //WATER control
+  readDayFromEeprom(day);
   
-  sendDataToServer();
-   
-  digitalWrite(D4, LOW);
-  delay(1000);
-  digitalWrite(D4, HIGH);
-  delay(1000);
+  if (DEBUG) Serial.print("Current Day: ");
+  if (DEBUG) Serial.println(getDay(localTime));
+  if (DEBUG) Serial.print("Saved Day: ");
+  if (DEBUG) Serial.println(day);
+  if (DEBUG) Serial.print("Water today? ");
+  if (DEBUG) Serial.println(waterToday(getDay(localTime), day));
+  if (DEBUG) Serial.print("Water tank and ground? ");
+  if (DEBUG) Serial.println(String(digitalRead(D0)) + " " + String(digitalRead(D1)) + " " + String(digitalRead(D2)));
+  
+  if (waterTime == getHour(localTime) && waterToday(getDay(localTime), day)) {
+    // if (tank not dry && pot1 dry && pot2 dry)
+    if (!digitalRead(D0) && digitalRead(D1) && digitalRead(D2)){
+      if (DEBUG) Serial.println("Watering... ");
+      digitalWrite(D4, LOW);
+      delay(10000);
+      digitalWrite(D4, HIGH);
+      if (DEBUG) Serial.println("Watered. ");
+      writeDayOnEeprom(getDay(localTime));
+    }
+  }
+
+  delay(100);
 }
 
 void setTimeFromNTP(const int update) {
@@ -217,7 +281,7 @@ void setTimeFromNTP(const int update) {
     }
     if (DEBUG) Serial.println(epoch % 60); // print the second
   
-    localTime = epoch;
+    localTime = epoch + (3600 * GMT);
   }
 }
 
@@ -275,5 +339,49 @@ void sendDataToServer(){
 void timerCallback(void *pArg) {
   updateTimeFromInternalClock(1);
   timeSyncCounter++;
+}
+
+int getHour(long epoch){
+  if (DEBUG) {
+    Serial.print ("getHour: ");
+    Serial.println ((epoch  % 86400L) / 3600);
+  }
+  return (epoch  % 86400L) / 3600;
+}
+
+bool inRange(int currentHour, int startTime, int endTime){
+  if (startTime >= endTime){
+    return (currentHour >= startTime && currentHour <= 23) || (currentHour >= 0 && currentHour < endTime);
+  }
+  return currentHour >= startTime && currentHour < endTime;
+}
+
+void readDataFromEeprom(int& startTime, int& endTime, int& waterTime) {
+  EEPROM.begin(512);
+  EEPROM.get(0, startTime);
+  EEPROM.get(sizeof(startTime), endTime);
+  EEPROM.get(sizeof(startTime) + sizeof(endTime), waterTime);
+  EEPROM.end();
+}
+
+void writeDayOnEeprom(int day){
+  EEPROM.begin(512);
+  EEPROM.put(sizeof(startTime) + sizeof(endTime) + sizeof(waterTime), day);
+  EEPROM.commit();
+  EEPROM.end();
+}
+
+void readDayFromEeprom(int &day){
+  EEPROM.begin(512);
+  EEPROM.get(sizeof(startTime) + sizeof(endTime) + sizeof(waterTime), day);
+  EEPROM.end();
+}
+
+bool waterToday(int currentDate, int savedDate){
+  return currentDate != savedDate;
+}
+
+int getDay(long epoch){
+  return (epoch / 86400L);
 }
 
