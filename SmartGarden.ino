@@ -77,6 +77,7 @@ void readIsPasswordSetFromEeprom(int& isPasswordSet);
 void readPasswordFromEeprom();
 void resetPassword();
 void writeIsPasswordSetOnEeprom();
+void resetPasswordFromButton();
 
 //starts http server on port 8080
 ESP8266WebServer server(8080);
@@ -100,6 +101,9 @@ void setup() {
   // Water tank input
   pinMode(D4, OUTPUT);
   digitalWrite(D4, HIGH);
+  //Password reset button
+  pinMode(D6, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(D6), resetPasswordFromButton, CHANGE);
   
   //Initialize serial and wait for port to open:
   Serial.begin(9600);
@@ -302,7 +306,6 @@ void loop() {
     }
   }
 
-
   delay(100);
 }
 
@@ -481,6 +484,15 @@ void writeIsPasswordSetOnEeprom(){
   EEPROM.put(sizeof(startTime) + sizeof(endTime) + sizeof(waterTime) + sizeof(day), 1);
   EEPROM.commit();
   EEPROM.end();
+}
+
+void resetPasswordFromButton(){
+  resetPassword();
+  readIsPasswordSetFromEeprom(isPasswordSet);
+  if (DEBUG) {
+    Serial.print("Resetting Password. isPasswordSet: ");
+    Serial.println(isPasswordSet);
+  }
 }
 
 bool waterToday(int currentDate, int savedDate){
