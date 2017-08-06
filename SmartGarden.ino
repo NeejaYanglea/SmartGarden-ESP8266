@@ -44,6 +44,7 @@ int startTime, endTime, waterTime, day;
 int isPasswordSet;
 char pwd[33];
 char server_pwd[33];
+char new_pwd[33];
 
 //TODO set from server web
 int GMT = 2; 
@@ -200,7 +201,7 @@ void setup() {
   server.on("/newpwd", [](){
     // saves user set password to the eeprom
     if (!isPasswordSet) {
-      char new_pwd[30];
+      
       strncpy(new_pwd, server.arg("newPwd").c_str(), 33);  
       if (DEBUG) {
           Serial.println("New password from server: ");
