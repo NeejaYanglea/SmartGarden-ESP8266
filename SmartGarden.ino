@@ -9,11 +9,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#define INDEX_HTML "<!DOCTYPE html><html><head><title>SmartGarden-ESP8266 Configuration</title><link rel='shortcut icon' href='{favicon}' /><style>body { font-family: Helvetica, Arial, sans-serif; font-size: 16px ;padding: 10px }</style></head><body><h1>SmartGarden-ESP8266 Configuration</h1><form method='GET' action='/conf' target='output_frame'><label><strong>Light start hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='startTime' value='{startTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><label><strong>Light end hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='endTime' value='{endTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><label><strong>Water hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='waterTime' value='{waterTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><input type='submit' value='Submit'><br /><br /><iframe id='output_frame' name='output_frame' allowtransparency='true' width='350' height='80' frameBorder='0'>Browser not compatible</iframe></body></html>"
+#define INDEX_HTML "<!DOCTYPE html><html><head><title>SmartGarden-ESP8266 Configuration</title><link rel='shortcut icon' href='{favicon}' /><style>body { font-family: Helvetica, Arial, sans-serif; font-size: 16px ;padding: 10px }</style></head><body><h1>SmartGarden-ESP8266 Configuration</h1><form method='GET' action='/conf' target='output_frame'><label><strong>Light start hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='startTime' value='{startTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><label><strong>Light end hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='endTime' value='{endTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><label><strong>Water hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='waterTime' value='{waterTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><strong>Password: </strong></label><br /><input type='password' maxlength='30' name='pwd' value='{pwd}' size='30' style='font-size: 16px;' /><br /><br /><input type='submit' value='Submit'></form><br /><br /><h3>Set a password </h3><br /><form method='GET' action='/newpwd' target='output_frame'><label><strong>New Password: </strong></label><br /><input type='password' maxlength='30' name='newPwd' value='{newPwd}' size='30' style='font-size: 16px;' /><br /><br /><input type='submit' value='Submit'></form><br /><br /><iframe id='output_frame' name='output_frame' allowtransparency='true' width='350' height='80' frameBorder='0'>Browser not compatible</iframe></body></html>"
 #define FAVICON "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACHklEQVR4XoWT70tTURjHzz/in9CbueaYW2rlikCIftELdXOTpeJPlqNITV9LTWQzInMZc4Qvyk0NhYKoqDdtc7C1lFWv1FigsQiMxr6e5xzP9d6gPPDc59z7nOfz/DqXlctl0CJNUqlUxDtpZVN7ZXv3KYHO+1ZxjoknX5mvrzWQAirb23wc/TN29M7YhPQ/ssM9US0BKsq1e1ZhGI978H49oUWffnlDOF2POTD2/AxGl50YnG9Ayx2TEdB614RbT0/h5pM69EVqhVPy8wuhhxZOC+fhRCO6Z23oiFjgUgCVJhG7o7UYisvDgbk6+KN2DMZO4PaSEwM8g46HVvQ8dojo/ukmYw9agia4gtXoitjE4ZHFRpFuIOqAN3wcbZNmtE9ZhLNKX+sB9WHnZ5EbzKBSvGELPCEz+mbt8HGnZOEVfOF6eIJWrCTntAnRVLQmEu33nz2MxFwiwpvsEnoenIQvJMelmq3f0zcxxn8ZV3MxuEM1/weoC0SnCsPHsOFjyB3Ihpch08SQOsuwphP9xdIuEgFKqTgylxh23AzfW6XevszlAkOR63UOI5B+Gd+45aOHoTTAsNsr9berDJvnJSTNnYsLk0aAvgTaZylqlwTsEuDKISB1jqH8q2T4TwxTIMCXcScK7dJZAbZ5BlTCGgf83XQDgIw/PjxDrk2mr0oo8vS3LvJmHgVQ5VAZeT4BkvTBFGgS2eYqkYH+V98HQY0eaNw1dPsAAABRdEVYdENvbW1lbnQAQ29weXJpZ2h0IElOQ09SUyBHbWJIICh3d3cuaWNvbmV4cGVyaWVuY2UuY29tKSAtIFVubGljZW5zZWQgcHJldmlldyBpbWFnZbaaaaYAAAA4dEVYdENvcHlyaWdodABDb3B5cmlnaHQgSU5DT1JTIEdtYkggKHd3dy5pY29uZXhwZXJpZW5jZS5jb20pTs6ZTgAAAFp6VFh0Q29tbWVudAAAeJxzzi+oLMpMzyhR8PRz9g8KVnDPTfJQ0CgvL9fLTM7PS60oSC3KTM1LTtVLzs/VVNBVCM3LyUxOzStOTVEoKEoty0wtV8jMTUxPBQC4jxoknLyY4wAAAEF6VFh0Q29weXJpZ2h0AAB4nHPOL6gsykzPKFHw9HP2DwpWcM9N8lDQKC8v18tMzs9LrShILcpMzUtO1UvOz9UEAH02EGgc3eaPAAAAAElFTkSuQmCC"
 
 #define period 1000*10
-#define DEBUG false
+#define DEBUG true
 
 #define D0 16 
 #define D1 5
@@ -41,6 +41,10 @@ unsigned long localTime = 0;
 
 bool eepromReadRequired = true;
 int startTime, endTime, waterTime, day;
+int isPasswordSet;
+char pwd[30];
+char server_pwd[30];
+
 //TODO set from server web
 int GMT = 2; 
 
@@ -69,6 +73,10 @@ void updateTimeFromInternalClock(const int seconds);
 void sendDataToServer();
 void timerCallback(void *pArg);
 void readDataFromEeprom(int& startTime, int& endTime, int& waterTime);
+void readIsPasswordSetFromEeprom(int& isPasswordSet);
+void readPasswordFromEeprom();
+void resetPassword();
+void writeIsPasswordSetOnEeprom();
 
 //starts http server on port 8080
 ESP8266WebServer server(8080);
@@ -117,7 +125,7 @@ void setup() {
     while (true);
   }
 
-  delay(5000);
+  delay(500);
 
   if (DEBUG) Serial.println("Starting UDP");
   udp.begin(localPort);
@@ -125,26 +133,99 @@ void setup() {
   if (DEBUG) Serial.println(udp.localPort());
 
   setTimeFromNTP(0);
+
+  //check if password is set and written on EEPROM
+  readIsPasswordSetFromEeprom(isPasswordSet);
+  if (DEBUG) Serial.println("isPasswordSet: " + String(isPasswordSet));
+  if(isPasswordSet != 1){
+    resetPassword();
+  }
+  readIsPasswordSetFromEeprom(isPasswordSet);
+  if (DEBUG) Serial.println("isPassword RESET: " + String(isPasswordSet));
   
+
+  if(isPasswordSet){
+    readPasswordFromEeprom();
+      if (DEBUG) {
+        Serial.println("PASSWORD FROM EEPROM: ");
+        Serial.println(pwd);
+      }
+  }
   // Server configuration 
   
   server.on("/conf", [](){
     // saves user data to the eeprom
     // TODO verify user input
-    startTime = server.arg("startTime").toInt();
-    endTime = server.arg("endTime").toInt();
-    waterTime = server.arg("waterTime").toInt();    
-    
-    EEPROM.begin(512);
-    EEPROM.put(0, startTime);
-    EEPROM.put(sizeof(startTime), endTime);
-    EEPROM.put(sizeof(startTime) + sizeof(endTime), waterTime);
-    EEPROM.commit();
-    EEPROM.end();
+    strncpy(server_pwd, server.arg("pwd").c_str(), 30);  
+    if (DEBUG) {
+        Serial.println("Password from server: ");
+        Serial.println(server_pwd);
+      }
+    if ((isPasswordSet && strcmp(server_pwd, pwd) == 0) || !isPasswordSet) {
+      if (DEBUG) {
+        Serial.print("Password is set: ");
+        Serial.print(isPasswordSet);
+        Serial.println(" and it is correct.");
+      }
+      
+      startTime = server.arg("startTime").toInt();
+      endTime = server.arg("endTime").toInt();
+      waterTime = server.arg("waterTime").toInt();    
+      
+      EEPROM.begin(512);
+      EEPROM.put(0, startTime);
+      EEPROM.put(sizeof(startTime), endTime);
+      EEPROM.put(sizeof(startTime) + sizeof(endTime), waterTime);
+      EEPROM.commit();
+      EEPROM.end();
+  
+      eepromReadRequired = true;
+      
+      server.send(200, "text/plain", "Saved: " + String(startTime) + " " + String(endTime) + " " + String(waterTime));
+    }
+    else {
+      if (DEBUG) {
+        Serial.print("Password is set: ");
+        Serial.print(isPasswordSet);
+        Serial.println(" but it is not correct.");
+      }
+      server.send(200, "text/plain", "Wrong Password.");
+    }
+  });
 
-    eepromReadRequired = true;
+  server.on("/newpwd", [](){
+    // saves user set password to the eeprom
+    if (!isPasswordSet) {
+      char new_pwd[30];
+      strncpy(new_pwd, server.arg("newPwd").c_str(), 30);  
+      if (DEBUG) {
+          Serial.println("New password from server: ");
+          Serial.println(new_pwd);
+        }   
+        
+      EEPROM.begin(512);
+      EEPROM.put(sizeof(startTime) + sizeof(endTime) + sizeof(waterTime) + sizeof(day) + sizeof(isPasswordSet), new_pwd);
+      EEPROM.commit();
+      EEPROM.end();
+      
+      writeIsPasswordSetOnEeprom();
     
-    server.send(200, "text/plain", "Saved: " + String(startTime) + " " + String(endTime) + " " + String(waterTime));
+      eepromReadRequired = true;
+      readIsPasswordSetFromEeprom(isPasswordSet);
+      if (DEBUG) Serial.println("isPasswordSet: " + String(isPasswordSet));
+      
+      readPasswordFromEeprom();
+      if (DEBUG) {
+        Serial.println("Password from eeprom: ");
+        Serial.println(pwd);
+      }
+      
+      server.send(200, "text/plain", "Password Saved.");
+    }
+    else {
+      server.send(200, "text/plain", "Password Already Set, press the red button on Smart Garden to reset.");
+    }
+        
   });
 
   server.on("/", [](){
@@ -164,6 +245,7 @@ void setup() {
 }
 
 void loop() {  
+  if (DEBUG)   delay(5000);
   server.handleClient();
   
   if(timeSyncCounter >= TIME_SYNC_SECONDS) {
@@ -188,7 +270,6 @@ void loop() {
   if(DEBUG) Serial.print(endTime);
   if(DEBUG) Serial.print(" ");
   if(DEBUG) Serial.println(waterTime);
-
 
   // LED control
   if (inRange(getHour(localTime), startTime, endTime)){
@@ -374,6 +455,32 @@ void writeDayOnEeprom(int day){
 void readDayFromEeprom(int &day){
   EEPROM.begin(512);
   EEPROM.get(sizeof(startTime) + sizeof(endTime) + sizeof(waterTime), day);
+  EEPROM.end();
+}
+
+void readIsPasswordSetFromEeprom(int& isPasswordSet){
+  EEPROM.begin(512);
+  EEPROM.get(sizeof(startTime) + sizeof(endTime) + sizeof(waterTime) + sizeof(day), isPasswordSet);
+  EEPROM.end();
+}
+
+void readPasswordFromEeprom() {
+  EEPROM.begin(512);
+  EEPROM.get(sizeof(startTime) + sizeof(endTime) + sizeof(waterTime) + sizeof(day) + sizeof(isPasswordSet), pwd);
+  EEPROM.end();
+}
+
+void resetPassword(){
+  EEPROM.begin(512);
+  EEPROM.put(sizeof(startTime) + sizeof(endTime) + sizeof(waterTime) + sizeof(day), 0);
+  EEPROM.commit();
+  EEPROM.end();
+}
+
+void writeIsPasswordSetOnEeprom(){
+  EEPROM.begin(512);
+  EEPROM.put(sizeof(startTime) + sizeof(endTime) + sizeof(waterTime) + sizeof(day), 1);
+  EEPROM.commit();
   EEPROM.end();
 }
 
