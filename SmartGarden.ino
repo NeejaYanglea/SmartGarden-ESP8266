@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define INDEX_HTML "<!DOCTYPE html><html><head><title>SmartGarden-ESP8266 Configuration</title><link rel='shortcut icon' href='{favicon}' /><style>body { font-family: Helvetica, Arial, sans-serif; font-size: 16px ;padding: 10px }</style></head><body><h1>SmartGarden-ESP8266 Configuration</h1><form method='GET' action='/conf' target='output_frame'><label><strong>Light start hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='startTime' value='{startTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><label><strong>Light end hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='endTime' value='{endTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><label><strong>Water hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='waterTime' value='{waterTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><strong>Password: </strong></label><br /><input type='password' maxlength='30' name='pwd' value='{pwd}' size='30' style='font-size: 16px;' /><br /><br /><input type='submit' value='Submit'></form><br /><br /><h3>Set a password </h3><br /><form method='GET' action='/newpwd' target='output_frame'><label><strong>New Password: </strong></label><br /><input type='password' maxlength='30' name='newPwd' value='{newPwd}' size='30' style='font-size: 16px;' /><br /><br /><input type='submit' value='Submit'></form><br /><br /><iframe id='output_frame' name='output_frame' allowtransparency='true' width='350' height='80' frameBorder='0'>Browser not compatible</iframe></body></html>"
+#define INDEX_HTML "<!DOCTYPE html><html><head><title>SmartGarden-ESP8266 Configuration</title><link rel='shortcut icon' href='{favicon}' /><style>body { font-family: Helvetica, Arial, sans-serif; font-size: 16px ;padding: 10px }</style></head><body><h1>SmartGarden-ESP8266 Configuration</h1><form method='GET' action='/conf' target='output_frame'><label><strong>Light start hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='startTime' value='{startTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><label><strong>Light end hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='endTime' value='{endTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><label><strong>Water hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='waterTime' value='{waterTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><strong>Password: </strong></label><br /><input type='password' maxlength='32' name='pwd' value='{pwd}' size='32' style='font-size: 16px;' /><br /><br /><input type='submit' value='Submit'></form><br /><br /><h3>Set a password </h3><br /><form method='GET' action='/newpwd' target='output_frame'><label><strong>New Password: </strong></label><br /><input type='password' maxlength='32' name='newPwd' value='{newPwd}' size='32' style='font-size: 16px;' /><br /><br /><input type='submit' value='Submit'></form><br /><br /><iframe id='output_frame' name='output_frame' allowtransparency='true' width='350' height='80' frameBorder='0'>Browser not compatible</iframe></body></html>"
 #define FAVICON "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACHklEQVR4XoWT70tTURjHzz/in9CbueaYW2rlikCIftELdXOTpeJPlqNITV9LTWQzInMZc4Qvyk0NhYKoqDdtc7C1lFWv1FigsQiMxr6e5xzP9d6gPPDc59z7nOfz/DqXlctl0CJNUqlUxDtpZVN7ZXv3KYHO+1ZxjoknX5mvrzWQAirb23wc/TN29M7YhPQ/ssM9US0BKsq1e1ZhGI978H49oUWffnlDOF2POTD2/AxGl50YnG9Ayx2TEdB614RbT0/h5pM69EVqhVPy8wuhhxZOC+fhRCO6Z23oiFjgUgCVJhG7o7UYisvDgbk6+KN2DMZO4PaSEwM8g46HVvQ8dojo/ukmYw9agia4gtXoitjE4ZHFRpFuIOqAN3wcbZNmtE9ZhLNKX+sB9WHnZ5EbzKBSvGELPCEz+mbt8HGnZOEVfOF6eIJWrCTntAnRVLQmEu33nz2MxFwiwpvsEnoenIQvJMelmq3f0zcxxn8ZV3MxuEM1/weoC0SnCsPHsOFjyB3Ihpch08SQOsuwphP9xdIuEgFKqTgylxh23AzfW6XevszlAkOR63UOI5B+Gd+45aOHoTTAsNsr9berDJvnJSTNnYsLk0aAvgTaZylqlwTsEuDKISB1jqH8q2T4TwxTIMCXcScK7dJZAbZ5BlTCGgf83XQDgIw/PjxDrk2mr0oo8vS3LvJmHgVQ5VAZeT4BkvTBFGgS2eYqkYH+V98HQY0eaNw1dPsAAABRdEVYdENvbW1lbnQAQ29weXJpZ2h0IElOQ09SUyBHbWJIICh3d3cuaWNvbmV4cGVyaWVuY2UuY29tKSAtIFVubGljZW5zZWQgcHJldmlldyBpbWFnZbaaaaYAAAA4dEVYdENvcHlyaWdodABDb3B5cmlnaHQgSU5DT1JTIEdtYkggKHd3dy5pY29uZXhwZXJpZW5jZS5jb20pTs6ZTgAAAFp6VFh0Q29tbWVudAAAeJxzzi+oLMpMzyhR8PRz9g8KVnDPTfJQ0CgvL9fLTM7PS60oSC3KTM1LTtVLzs/VVNBVCM3LyUxOzStOTVEoKEoty0wtV8jMTUxPBQC4jxoknLyY4wAAAEF6VFh0Q29weXJpZ2h0AAB4nHPOL6gsykzPKFHw9HP2DwpWcM9N8lDQKC8v18tMzs9LrShILcpMzUtO1UvOz9UEAH02EGgc3eaPAAAAAElFTkSuQmCC"
 
 #define period 1000*10
@@ -42,8 +42,8 @@ unsigned long localTime = 0;
 bool eepromReadRequired = true;
 int startTime, endTime, waterTime, day;
 int isPasswordSet;
-char pwd[30];
-char server_pwd[30];
+char pwd[33];
+char server_pwd[33];
 
 //TODO set from server web
 int GMT = 2; 
@@ -156,7 +156,7 @@ void setup() {
   server.on("/conf", [](){
     // saves user data to the eeprom
     // TODO verify user input
-    strncpy(server_pwd, server.arg("pwd").c_str(), 30);  
+    strncpy(server_pwd, server.arg("pwd").c_str(), 33);  
     if (DEBUG) {
         Serial.println("Password from server: ");
         Serial.println(server_pwd);
@@ -197,7 +197,7 @@ void setup() {
     // saves user set password to the eeprom
     if (!isPasswordSet) {
       char new_pwd[30];
-      strncpy(new_pwd, server.arg("newPwd").c_str(), 30);  
+      strncpy(new_pwd, server.arg("newPwd").c_str(), 33);  
       if (DEBUG) {
           Serial.println("New password from server: ");
           Serial.println(new_pwd);
@@ -210,7 +210,6 @@ void setup() {
       
       writeIsPasswordSetOnEeprom();
     
-      eepromReadRequired = true;
       readIsPasswordSetFromEeprom(isPasswordSet);
       if (DEBUG) Serial.println("isPasswordSet: " + String(isPasswordSet));
       
@@ -219,7 +218,6 @@ void setup() {
         Serial.println("Password from eeprom: ");
         Serial.println(pwd);
       }
-      
       server.send(200, "text/plain", "Password Saved.");
     }
     else {
@@ -303,6 +301,7 @@ void loop() {
       writeDayOnEeprom(getDay(localTime));
     }
   }
+
 
   delay(100);
 }
