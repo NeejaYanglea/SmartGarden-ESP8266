@@ -9,7 +9,7 @@ This program runs a little automated garden provided with artificial light and w
 
 This program runs on a ESP8266 module. 
 
-The pin used are:
+The pins used are:
 
 D0/GPIO 16: Moisture sensor in water tank
 
