@@ -5,6 +5,18 @@ This program runs a little automated garden provided with artificial light and w
 
 <img src="images/picture1.jpg" alt="SmartGarden-ESP8266" width="800" /> 
 
+## Information
+
+This program runs on a ESP8266 module. 
+
+The pin used are:
+D0/GPIO 16: Moisture sensor in water tank
+D1/GPIO 5: Moisture sensor in pot
+D2/GPIO 4: Moisture sensor in pot
+D3/GPIO 0: Led input
+D4/GPIO 2: Water pump input
+D6/GPIO 12: Password reset button input
+
 ## Usage
 
 The user can set the Wi-Fi SSiD and password connecting to the NodeMCU local network and then access http://192.168.4.1 to configure.
