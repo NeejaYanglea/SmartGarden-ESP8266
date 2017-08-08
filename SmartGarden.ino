@@ -300,7 +300,7 @@ void loop() {
     if (!digitalRead(D0) && digitalRead(D1) && digitalRead(D2)){
       if (DEBUG) Serial.println("Watering... ");
       digitalWrite(D4, LOW);
-      delay(10000);
+      delay(13000);
       digitalWrite(D4, HIGH);
       if (DEBUG) Serial.println("Watered. ");
       writeDayOnEeprom(getDay(localTime));
