@@ -98,10 +98,10 @@ void setup() {
   pinMode(D2, INPUT);
   // Led input
   pinMode(D3, OUTPUT);
-  digitalWrite(D3, HIGH);
+  digitalWrite(D3, LOW);
   // Water tank input
   pinMode(D4, OUTPUT);
-  digitalWrite(D4, HIGH);
+  digitalWrite(D4, LOW);
   //Password reset button
   pinMode(D6, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(D6), resetPasswordFromButton, CHANGE);
@@ -282,10 +282,10 @@ void loop() {
   // LED control
   if (inRange(getHour(localTime), startTime, endTime)){
       if (DEBUG) Serial.println("In range and led off");
-      digitalWrite(D3, LOW);
+      digitalWrite(D3, HIGH);
    } else {
       if (DEBUG) Serial.println("Not in range and led on");
-      digitalWrite(D3, HIGH);
+      digitalWrite(D3, LOW);
   }
 
   //WATER control
@@ -300,13 +300,13 @@ void loop() {
   if (DEBUG) Serial.print("Water tank and ground? ");
   if (DEBUG) Serial.println(String(digitalRead(D0)) + " " + String(digitalRead(D1)) + " " + String(digitalRead(D2)));
   
-  if (waterTime == getHour(localTime) && waterToday(getDay(localTime), day)) {
+  if (waterTime == getHour(localTime) && (waterToday(getDay(localTime), day) || DEBUG)) {
     // if (tank not dry && pot1 dry && pot2 dry)
     if (!digitalRead(D0) && digitalRead(D1) && digitalRead(D2)){
       if (DEBUG) Serial.println("Watering... ");
-      digitalWrite(D4, LOW);
-      delay(13000);
       digitalWrite(D4, HIGH);
+      delay(13000);
+      digitalWrite(D4, LOW);
       if (DEBUG) Serial.println("Watered. ");
       writeDayOnEeprom(getDay(localTime));
     }
