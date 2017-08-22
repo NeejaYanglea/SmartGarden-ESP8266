@@ -25,7 +25,7 @@ D6/GPIO 12: input interrupt, password reset button input
 
 ## Usage
 
-The user can set the Wi-Fi SSiD and password connecting to the NodeMCU local network and then access http://192.168.4.1 to configure.
+The user can set the Wi-Fi SSiD and password connecting to the NodeMCU local network (default SSiD: SmartGarden-ESP8266, password: smartgarden) and then access http://192.168.1.94 to configure.
 
 The user can configure the garden via web. The esp8266 runs a server to collect configuration data.
 Access http://192.168.1.94:8080, then complete the form to choose lights start and stop hours and watering hour.
