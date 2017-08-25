@@ -5,6 +5,8 @@ This program runs a little automated garden provided with artificial light and w
 
 <img src="images/picture1.jpg" alt="SmartGarden-ESP8266" width="800" /> 
 
+<img src="images/picture2.jpg" alt="SmartGarden-ESP8266" width="800" /> 
+
 ## Information
 
 This program runs on a ESP8266 module. 
