@@ -10,10 +10,10 @@
 #include <string.h>
 
 #define INDEX_HTML "<!DOCTYPE html><html><head><title>SmartGarden-ESP8266 Configuration</title><link rel='shortcut icon' href='{favicon}' /><style>body { font-family: Helvetica, Arial, sans-serif; font-size: 16px ;padding: 10px }</style></head><body><h1>SmartGarden-ESP8266 Configuration</h1><div  style=' float:left;'><form method='GET' action='/conf' target='output_frame'><label><strong>Light start hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='startTime' value='{startTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><label><strong>Light end hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='endTime' value='{endTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><label><strong>Watering hour: </strong></label><br /><input type='number' min='0' max='23' step='1' pattern='([01]?[0-9]{1}|2[0-3]{1})' name='waterTime' value='{waterTime}' maxlength='2' size='1' style='font-size: 16px;' /><br /><br /><strong>Password: </strong></label><br /><input type='password' maxlength='32' name='pwd' value='{pwd}' size='32' style='font-size: 16px;' /><br /><br /><input type='submit' value='Submit'></form></div><div style=' float:left; margin-left: 160px;'><h3>Status</h3><p><Strong>Pot 1:</Strong> {pot1}</p><p><Strong>Pot 2:</Strong> {pot2}</p><p><Strong>Water tank:</Strong> {tank}</p><p><Strong>Already watered today:</Strong> {waterToday}</p></div><br /><br /><div style='clear:both'></div><h3>Set a password </h3><p>Please set a password of max 32 characters. </p><form method='GET' action='/newpwd' target='output_frame'><label><strong>New Password: </strong></label><br /><input type='password' maxlength='32' name='newPwd' value='{newPwd}' size='32' style='font-size: 16px;' /><br /><br /><input type='submit' value='Submit'></form><br /><br /><iframe id='output_frame' name='output_frame' allowtransparency='true' width='350' height='80' frameBorder='0'>Browser not compatible</iframe></body></html>"
-#define FAVICON "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACHklEQVR4XoWT70tTURjHzz/in9CbueaYW2rlikCIftELdXOTpeJPlqNITV9LTWQzInMZc4Qvyk0NhYKoqDdtc7C1lFWv1FigsQiMxr6e5xzP9d6gPPDc59z7nOfz/DqXlctl0CJNUqlUxDtpZVN7ZXv3KYHO+1ZxjoknX5mvrzWQAirb23wc/TN29M7YhPQ/ssM9US0BKsq1e1ZhGI978H49oUWffnlDOF2POTD2/AxGl50YnG9Ayx2TEdB614RbT0/h5pM69EVqhVPy8wuhhxZOC+fhRCO6Z23oiFjgUgCVJhG7o7UYisvDgbk6+KN2DMZO4PaSEwM8g46HVvQ8dojo/ukmYw9agia4gtXoitjE4ZHFRpFuIOqAN3wcbZNmtE9ZhLNKX+sB9WHnZ5EbzKBSvGELPCEz+mbt8HGnZOEVfOF6eIJWrCTntAnRVLQmEu33nz2MxFwiwpvsEnoenIQvJMelmq3f0zcxxn8ZV3MxuEM1/weoC0SnCsPHsOFjyB3Ihpch08SQOsuwphP9xdIuEgFKqTgylxh23AzfW6XevszlAkOR63UOI5B+Gd+45aOHoTTAsNsr9berDJvnJSTNnYsLk0aAvgTaZylqlwTsEuDKISB1jqH8q2T4TwxTIMCXcScK7dJZAbZ5BlTCGgf83XQDgIw/PjxDrk2mr0oo8vS3LvJmHgVQ5VAZeT4BkvTBFGgS2eYqkYH+V98HQY0eaNw1dPsAAABRdEVYdENvbW1lbnQAQ29weXJpZ2h0IElOQ09SUyBHbWJIICh3d3cuaWNvbmV4cGVyaWVuY2UuY29tKSAtIFVubGljZW5zZWQgcHJldmlldyBpbWFnZbaaaaYAAAA4dEVYdENvcHlyaWdodABDb3B5cmlnaHQgSU5DT1JTIEdtYkggKHd3dy5pY29uZXhwZXJpZW5jZS5jb20pTs6ZTgAAAFp6VFh0Q29tbWVudAAAeJxzzi+oLMpMzyhR8PRz9g8KVnDPTfJQ0CgvL9fLTM7PS60oSC3KTM1LTtVLzs/VVNBVCM3LyUxOzStOTVEoKEoty0wtV8jMTUxPBQC4jxoknLyY4wAAAEF6VFh0Q29weXJpZ2h0AAB4nHPOL6gsykzPKFHw9HP2DwpWcM9N8lDQKC8v18tMzs9LrShILcpMzUtO1UvOz9UEAH02EGgc3eaPAAAAAElFTkSuQmCC"
+#define FAVICON "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACHklEQVR4XoWT70tTURjHzz/in9CbueaYW2rlikCIftELdXOTpeJPlqNITV9LTWQzInMZc4Qvyk0NhYKoqDdtc7C1lFWv1FigsQiMxr6e5xzP9d6gPPDc59z7nOfz/DqXlctl0CJNUqlUxDtpZVN7ZXv3KYHO+1ZxjoknX5mvrzWQAirb23wc/TN29M7YhPQ/ssM9US0BKsq1e1ZhGI978H49oUWffnlDOF2POTD4/AxGl50YnG9Ayx2TEdB614RbT0/h5pM69EVqhVPy8wuhhxZOC+fhRCO6Z23oiFjgUgCVJhG7o7UYisvDgbk6+KN2DMZO4PaSEwM8g46HVvQ8dojo/ukmYw9agia4gtXoitjE4ZHFRpFuIOqAN3wcbZNmtE9ZhLNKX+sB9WHnZ5EbzKBSvGELPCEz+mbt8HGnZOEVfOF6eIJWrCTntAnRVLQmEu33nz2MxFwiwpvsEnoenIQvJMelmq3f0zcxxn8ZV3MxuEM1/weoC0SnCsPHsOFjyB3Ihpch08SQOsuwphP9xdIuEgFKqTgylxh23AzfW6XevszlAkOR63UOI5B+Gd+45aOHoTTAsNsr9berDJvnJSTNnYsLk0aAvgTaZylqlwTsEuDKISB1jqH8q2T4TwxTIMCXcScK7dJZAbZ5BlTCGgf83XQDgIw/PjxDrk2mr0oo8vS3LvJmHgVQ5VAZeT4BkvTBFGgS2eYqkYH+V98HQY0eaNw1dPsAAABRdEVYdENvbW1lbnQAQ29weXJpZ2h0IElOQ09SUyBHbWJIICh3d3cuaWNvbmV4cGVyaWVuY2UuY29tKSAtIFVubGljZW5zZWQgcHJldmlldyBpbWFnZbaaaaYAAAA4dEVYdENvcHlyaWdodABDb3B5cmlnaHQgSU5DT1JTIEdtYkggKHd3dy5pY29uZXhwZXJpZW5jZS5jb20pTs6ZTgAAAFp6VFh0Q29tbWVudAAAeJxzzi+oLMpMzyhR8PRz9g8KVnDPTfJQ0CgvL9fLTM7PS60oSC3KTM1LTtVLzs/VVNBVCM3LyUxOzStOTVEoKEoty0wtV8jMTUxPBQC4jxoknLyY4wAAAEF6VFh0Q29weXJpZ2h0AAB4nHPOL6gsykzPKFHw9HD4DwpWcM9N8lDQKC8v18tMzs9LrShILcpMzUtO1UvOz9UEAH02EGgc3eaPAAAAAElFTkSuQmCC"
 
 #define period 1000*10
-#define DEBUG false
+#define DEBUG false //if true will ignore if already watered
 
 #define D0 16 
 #define D1 5
@@ -94,14 +94,14 @@ void setup() {
   // Moisture sensor in water tank
   pinMode(D0, INPUT);
   // Moisture sensor in pots
-  pinMode(D1, INPUT);
-  pinMode(D2, INPUT);
+  pinMode(D3, INPUT);
+  pinMode(D4, INPUT);
   // Led input
-  pinMode(D3, OUTPUT);
-  digitalWrite(D3, LOW);
+  pinMode(D1, OUTPUT);
+  digitalWrite(D1, LOW);
   // Water tank input
-  pinMode(D4, OUTPUT);
-  digitalWrite(D4, LOW);
+  pinMode(D2, OUTPUT);
+  digitalWrite(D2, LOW);
   //Password reset button
   pinMode(D6, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(D6), resetPasswordFromButton, CHANGE);
@@ -241,8 +241,8 @@ void setup() {
     html_home_page.replace("{endTime}", String(endTime));
     html_home_page.replace("{waterTime}", String(waterTime));
 
-    digitalRead(D1)? html_home_page.replace("{pot1}", "dry") : html_home_page.replace("{pot1}", "moist");
-    digitalRead(D2)? html_home_page.replace("{pot2}", "dry") : html_home_page.replace("{pot2}", "moist");
+    digitalRead(D3)? html_home_page.replace("{pot1}", "dry") : html_home_page.replace("{pot1}", "moist");
+    digitalRead(D4)? html_home_page.replace("{pot2}", "dry") : html_home_page.replace("{pot2}", "moist");
     digitalRead(D0)? html_home_page.replace("{tank}", "empty") : html_home_page.replace("{tank}", "full");
     waterToday(getDay(localTime), day)? html_home_page.replace("{waterToday}", "no") : html_home_page.replace("{waterToday}", "yes");
 
@@ -282,10 +282,10 @@ void loop() {
   // LED control
   if (inRange(getHour(localTime), startTime, endTime)){
       if (DEBUG) Serial.println("In range and led off");
-      digitalWrite(D3, HIGH);
+      digitalWrite(D1, HIGH);
    } else {
       if (DEBUG) Serial.println("Not in range and led on");
-      digitalWrite(D3, LOW);
+      digitalWrite(D1, LOW);
   }
 
   //WATER control
@@ -298,15 +298,15 @@ void loop() {
   if (DEBUG) Serial.print("Water today? ");
   if (DEBUG) Serial.println(waterToday(getDay(localTime), day));
   if (DEBUG) Serial.print("Water tank and ground? ");
-  if (DEBUG) Serial.println(String(digitalRead(D0)) + " " + String(digitalRead(D1)) + " " + String(digitalRead(D2)));
+  if (DEBUG) Serial.println(String(digitalRead(D0)) + " " + String(digitalRead(D3)) + " " + String(digitalRead(D4)));
   
   if (waterTime == getHour(localTime) && (waterToday(getDay(localTime), day) || DEBUG)) {
     // if (tank not dry && pot1 dry && pot2 dry)
-    if (!digitalRead(D0) && digitalRead(D1) && digitalRead(D2)){
+    if (!digitalRead(D0) && digitalRead(D3) && digitalRead(D4)){
       if (DEBUG) Serial.println("Watering... ");
-      digitalWrite(D4, HIGH);
+      digitalWrite(D2, HIGH);
       delay(13000);
-      digitalWrite(D4, LOW);
+      digitalWrite(D2, LOW);
       if (DEBUG) Serial.println("Watered. ");
       writeDayOnEeprom(getDay(localTime));
     }
