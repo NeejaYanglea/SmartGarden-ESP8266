@@ -13,13 +13,13 @@ The pins used are:
 
 D0/GPIO 16: input, moisture sensor in water tank
 
-D1/GPIO 5:  input, moisture sensor in pot
+D1/GPIO 5: output, relay for lights
 
-D2/GPIO 4:  input, moisture sensor in pot
+D2/GPIO 4: output, relay for water pump
 
-D3/GPIO 0: output, relay for lights
+D3/GPIO 0: input, moisture sensor in pot 
 
-D4/GPIO 2: output, relay for water pump
+D4/GPIO 2: input, moisture sensor in pot
 
 D6/GPIO 12: input interrupt, password reset button input
 
